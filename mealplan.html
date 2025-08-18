@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คิดอะไรไม่ออก บอกอีแคล</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Kanit', sans-serif; }
+        .bg-primary { background-color: #cc1e0f; }
+        .border-accent { border-color: #e9e2d0; }
+        .text-accent { color: #e9e2d0; }
+        .hover-accent:hover { background-color: #e9e2d0; color: #cc1e0f; }
+        .slide-in { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(233, 226, 208, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(233, 226, 208, 0.6); }
+        }
+    </style>
+</head>
+<body class="bg-primary min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8 slide-in">
+            <h1 class="text-3xl font-bold text-accent mb-2">🤔 คิดอะไรไม่ออก</h1>
+            <h2 class="text-2xl font-semibold mb-4">บอกอีแคล ✨</h2>
+            <p class="text-lg opacity-90">วางแผนมื้ออาหารง่าย ๆ ไม่ต้องคิดเอง!</p>
+        </div>
+
+        <!-- Step 1: Food Type Selection -->
+        <div id="step1" class="slide-in">
+            <div class="bg-white/10 rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-xl font-semibold mb-4 text-center">🍽️ อยากกินแนวไหนดี?</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectFoodType('thai')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🇹🇭</div>
+                        <div class="font-medium">อาหารไทย</div>
+                    </button>
+                    <button onclick="selectFoodType('western')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🍝</div>
+                        <div class="font-medium">อาหารฝรั่ง</div>
+                    </button>
+                    <button onclick="selectFoodType('noodle')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🍜</div>
+                        <div class="font-medium">เส้น/ก๋วยเตี๋ยว</div>
+                    </button>
+                    <button onclick="selectFoodType('healthy')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🥗</div>
+                        <div class="font-medium">คลีน/สุขภาพ</div>
+                    </button>
+                    <button onclick="selectFoodType('vegan')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🧘</div>
+                        <div class="font-medium">มังสวิรัติ/เจ</div>
+                    </button>
+                    <button onclick="selectFoodType('snack')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🍿</div>
+                        <div class="font-medium">อาหารทานเล่น</div>
+                    </button>
+                    <button onclick="selectFoodType('drinks')" class="food-type-btn bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105">
+                        <div class="text-2xl mb-2">🧋</div>
+                        <div class="font-medium">เครื่องดื่ม</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Meal Selection -->
+        <div id="step2" class="hidden slide-in">
+            <div class="bg-white/10 rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-xl font-semibold mb-2 text-center">🧮 อยากได้เมนูมื้อไหนบ้าง?</h3>
+                <p class="text-center text-sm opacity-80 mb-4">เลือกได้มากกว่า 1 มื้อนะ</p>
+                <div class="space-y-3">
+                    <button onclick="toggleMeal('breakfast')" id="breakfast-btn" class="meal-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🌅</span>
+                        <span class="font-medium">มื้อเช้า</span>
+                        <span class="ml-auto text-xl hidden" id="breakfast-check">✅</span>
+                    </button>
+                    <button onclick="toggleMeal('lunch')" id="lunch-btn" class="meal-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">☀️</span>
+                        <span class="font-medium">มื้อกลางวัน</span>
+                        <span class="ml-auto text-xl hidden" id="lunch-check">✅</span>
+                    </button>
+                    <button onclick="toggleMeal('dinner')" id="dinner-btn" class="meal-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🌙</span>
+                        <span class="font-medium">มื้อเย็น</span>
+                        <span class="ml-auto text-xl hidden" id="dinner-check">✅</span>
+                    </button>
+                </div>
+                <button onclick="proceedToStep3()" id="continue-btn" class="w-full mt-4 bg-accent text-primary font-semibold rounded-xl p-4 transition-all duration-300 transform hover:scale-105 opacity-50 cursor-not-allowed" disabled>
+                    ต่อไป ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Focus Selection -->
+        <div id="step3" class="hidden slide-in">
+            <div class="bg-white/10 rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-xl font-semibold mb-2 text-center">💪 อยากเน้นอะไรไหม</h3>
+                <p class="text-center text-sm opacity-80 mb-4">จะได้จัดเมนูแบบแม่น ๆ</p>
+                <div class="space-y-3">
+                    <button onclick="selectFocus('protein')" class="focus-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🥩</span>
+                        <span class="font-medium">โปรตีนสูง</span>
+                    </button>
+                    <button onclick="selectFocus('lowcarb')" class="focus-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🧘‍♀️</span>
+                        <span class="font-medium">คาร์บต่ำ</span>
+                    </button>
+                    <button onclick="selectFocus('lowcal')" class="focus-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">💧</span>
+                        <span class="font-medium">คุมแคลแบบชิล ๆ</span>
+                    </button>
+                    <button onclick="selectFocus('tasty')" class="focus-btn w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🧡</span>
+                        <span class="font-medium">ไม่มีอะไร ขออร่อยไว้ก่อน</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-8">
+            <div class="pulse-glow bg-white/20 rounded-2xl p-8 border-2 border-accent">
+                <div class="text-4xl mb-4">🤖</div>
+                <h3 class="text-xl font-semibold mb-2">อีแคลกำลังคิดให้...</h3>
+                <p class="opacity-80">รอแป๊บนึงนะ กำลังจัดเมนูดี ๆ ให้ ✨</p>
+                <div class="mt-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden slide-in">
+            <div class="bg-white/10 rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-2xl font-bold text-center mb-4 text-accent">🍱 Meal Plan วันนี้:</h3>
+                <div id="mealPlan" class="space-y-4 mb-6">
+                    <!-- Meals will be populated here -->
+                </div>
+                <div id="summary" class="bg-white/10 rounded-xl p-4 mb-4">
+                    <!-- Summary will be populated here -->
+                </div>
+                <div id="tip" class="bg-accent/20 rounded-xl p-4 mb-4">
+                    <h4 class="font-semibold mb-2">💡 ทริป!! จากอีแคล:</h4>
+                    <p id="tipText" class="text-sm"></p>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="resetApp()" class="w-full bg-white/20 hover-accent border-2 border-accent rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🔄</span>
+                        <span class="font-medium">เปลี่ยนแนวเมนูใหม่</span>
+                    </button>
+                    <button onclick="goToHome()" class="w-full bg-accent text-primary font-semibold rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-2xl mr-3">🏠</span>
+                        <span class="font-medium">กลับไปหน้าแรก</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden form for LINE ID -->
+        <input type="hidden" id="lineId" name="lineId">
+    </div>
+
+    <script>
+        // App state
+        let appState = {
+            foodType: '',
+            selectedMeals: [],
+            focus: '',
+            lineUserId: '',
+            goalCalories: 1300
+        };
+
+        // Initialize Supabase
+        const supabaseUrl = 'https://lvtdqeerzxpznnayccmb.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dGRxZWVyenhwem5uYXljY21iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTAxMjksImV4cCI6MjA2ODk4NjEyOX0.Uai-3_YSJpsYmSSTbHtrSNBoCG5f8WxoUcqyvcV3yUM';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Mock Supabase data (replace with actual Supabase connection)
+        const mockMealsData = {
+            thai: [
+                { food_name: 'ไข่เจียวข้าวสวย', meal_time: 'breakfast', calories: 320, protein: 15, carbs: 45, fat: 8, tip: 'กินไข่เจียวตอนเช้าจะได้พลังงานดี ๆ เริ่มต้นวัน!' },
+                { food_name: 'ลาบอกไก่', meal_time: 'lunch', calories: 450, protein: 35, carbs: 25, fat: 12, tip: 'ลาบอกไก่มีโปรตีนสูง เหมาะกับคนออกกำลังกาย' },
+                { food_name: 'แกงจืดเต้าหู้หมูสับ', meal_time: 'dinner', calories: 380, protein: 28, carbs: 15, fat: 18, tip: 'แกงจืดย่อยง่าย เหมาะกับมื้อเย็น' }
+            ],
+            western: [
+                { food_name: 'Scrambled Eggs Toast', meal_time: 'breakfast', calories: 350, protein: 18, carbs: 30, fat: 15, tip: 'ไข่กวนกับขนมปังโฮลวีทให้พลังงานยาวนาน' },
+                { food_name: 'Grilled Chicken Salad', meal_time: 'lunch', calories: 420, protein: 40, carbs: 20, fat: 10, tip: 'สลัดไก่ย่างคือเมนูคลีนที่อร่อยและได้โปรตีน' },
+                { food_name: 'Salmon Steak', meal_time: 'dinner', calories: 480, protein: 35, carbs: 10, fat: 25, tip: 'ปลาแซลมอนมีโอเมก้า 3 ดีต่อสมองและหัวใจ' }
+            ],
+            healthy: [
+                { food_name: 'Quinoa Bowl', meal_time: 'breakfast', calories: 300, protein: 12, carbs: 40, fat: 8, tip: 'ควินัวเป็นซูเปอร์ฟู้ด มีโปรตีนครบถ้วน' },
+                { food_name: 'Buddha Bowl', meal_time: 'lunch', calories: 380, protein: 15, carbs: 45, fat: 12, tip: 'Buddha Bowl ให้สารอาหารครบ 5 หมู่' },
+                { food_name: 'Steamed Fish', meal_time: 'dinner', calories: 320, protein: 30, carbs: 5, fat: 15, tip: 'ปลานึ่งย่อยง่าย เหมาะกับมื้อเย็น' }
+            ],
+            drinks: [
+                { food_name: 'น้ำผลไม้สดปั่น', meal_time: 'breakfast', calories: 120, protein: 2, carbs: 30, fat: 0, tip: 'น้ำผลไม้สดให้วิตามินซี เริ่มต้นวันแบบสดชื่น!' },
+                { food_name: 'ชาเขียวน้ำผึ้ง', meal_time: 'lunch', calories: 80, protein: 0, carbs: 20, fat: 0, tip: 'ชาเขียวมีสารต้านอนุมูลอิสระ ดีต่อสุขภาพ' },
+                { food_name: 'นมอัลมอนด์', meal_time: 'dinner', calories: 60, protein: 3, carbs: 8, fat: 3, tip: 'นมอัลมอนด์ไม่มีแลคโตส ย่อยง่าย เหมาะก่อนนอน' }
+            ]
+        };
+
+        // Get goal calories from Supabase
+        async function getGoalCalories(userId) {
+            try {
+                const { data, error } = await supabase
+                    .from('tdee_form')
+                    .select('goal_calories')
+                    .eq('line_user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (error) {
+                    console.error('Error fetching goal calories:', error);
+                    return 1300; // Default value
+                }
+
+                if (data && data.length > 0) {
+                    return data[0].goal_calories || 1300;
+                }
+                
+                return 1300; // Default if no data found
+            } catch (error) {
+                console.error('Error:', error);
+                return 1300;
+            }
+        }
+
+        // Initialize LIFF
+        async function initializeLIFF() {
+            try {
+                // Replace with your actual LIFF ID
+                await liff.init({ liffId: "2007859046-yEGnq0GX" });
+                
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                appState.lineUserId = profile.userId;
+                document.getElementById("lineId").value = profile.userId;
+                
+                // Get goal calories from database
+                appState.goalCalories = await getGoalCalories(profile.userId);
+            } catch (error) {
+                console.log("LIFF initialization failed:", error);
+                // For demo purposes, use a mock user ID
+                appState.lineUserId = "demo_user_" + Date.now();
+                appState.goalCalories = 1300; // Default for demo
+            }
+        }
+
+        // Step functions
+        function selectFoodType(type) {
+            appState.foodType = type;
+            showStep('step2');
+        }
+
+        function toggleMeal(mealType) {
+            const index = appState.selectedMeals.indexOf(mealType);
+            const btn = document.getElementById(mealType + '-btn');
+            const check = document.getElementById(mealType + '-check');
+            
+            if (index > -1) {
+                // Remove meal
+                appState.selectedMeals.splice(index, 1);
+                btn.classList.remove('bg-accent', 'text-primary');
+                btn.classList.add('bg-white/20');
+                check.classList.add('hidden');
+            } else {
+                // Add meal
+                appState.selectedMeals.push(mealType);
+                btn.classList.remove('bg-white/20');
+                btn.classList.add('bg-accent', 'text-primary');
+                check.classList.remove('hidden');
+            }
+            
+            // Update continue button
+            const continueBtn = document.getElementById('continue-btn');
+            if (appState.selectedMeals.length > 0) {
+                continueBtn.disabled = false;
+                continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                continueBtn.classList.add('hover:scale-105');
+            } else {
+                continueBtn.disabled = true;
+                continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                continueBtn.classList.remove('hover:scale-105');
+            }
+        }
+
+        function proceedToStep3() {
+            if (appState.selectedMeals.length > 0) {
+                showStep('step3');
+            }
+        }
+
+        function selectFocus(focus) {
+            appState.focus = focus;
+            generateMealPlan();
+        }
+
+        function showStep(stepId) {
+            // Hide all steps
+            ['step1', 'step2', 'step3', 'loading', 'results'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Show target step
+            document.getElementById(stepId).classList.remove('hidden');
+        }
+
+        function generateMealPlan() {
+            showStep('loading');
+            
+            setTimeout(() => {
+                const meals = mockMealsData[appState.foodType] || mockMealsData.thai;
+                const selectedMeals = [];
+                
+                // Get meals for selected meal times
+                appState.selectedMeals.forEach(mealTime => {
+                    const mealForTime = meals.find(meal => meal.meal_time === mealTime);
+                    if (mealForTime) {
+                        selectedMeals.push(mealForTime);
+                    }
+                });
+                
+                displayMealPlan(selectedMeals);
+                showStep('results');
+                
+                // Save to Supabase (mock)
+                saveMealPlan(selectedMeals);
+            }, 2000);
+        }
+
+        function displayMealPlan(meals) {
+            const mealPlanDiv = document.getElementById('mealPlan');
+            const summaryDiv = document.getElementById('summary');
+            const tipDiv = document.getElementById('tipText');
+            
+            let totalCalories = 0;
+            let totalProtein = 0;
+            
+            const mealEmojis = {
+                breakfast: '🥣',
+                lunch: '🍲',
+                dinner: '🥗'
+            };
+            
+            const mealNames = {
+                breakfast: 'เช้า',
+                lunch: 'กลางวัน',
+                dinner: 'เย็น'
+            };
+            
+            mealPlanDiv.innerHTML = meals.map((meal) => {
+                totalCalories += meal.calories;
+                totalProtein += meal.protein;
+                
+                return `
+                    <div class="bg-white/10 rounded-xl p-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-2xl mr-3">${mealEmojis[meal.meal_time]}</span>
+                            <span class="font-semibold">${mealNames[meal.meal_time]}:</span>
+                        </div>
+                        <div class="ml-8">
+                            <div class="font-medium">${meal.food_name}</div>
+                            <div class="text-sm opacity-80">(${meal.calories} kcal)</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            summaryDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="text-lg font-semibold mb-2">✅ รวม ${totalCalories} kcal / เป้า ${appState.goalCalories.toLocaleString()} kcal</div>
+                    <div class="text-sm opacity-90">💬 แนว: ${getFoodTypeName(appState.foodType)} / ${getFocusName(appState.focus)}</div>
+                </div>
+            `;
+            
+            // Random tip
+            const randomTip = meals[Math.floor(Math.random() * meals.length)].tip;
+            tipDiv.textContent = randomTip;
+        }
+
+        function getFoodTypeName(type) {
+            const names = {
+                thai: 'อาหารไทย',
+                western: 'อาหารฝรั่ง',
+                noodle: 'เส้น/ก๋วยเตี๋ยว',
+                healthy: 'คลีน/สุขภาพ',
+                vegan: 'มังสวิรัติ/เจ',
+                snack: 'อาหารทานเล่น',
+                drinks: 'เครื่องดื่ม'
+            };
+            return names[type] || 'อาหารไทย';
+        }
+
+        function getFocusName(focus) {
+            const names = {
+                protein: 'โปรตีนสูง',
+                lowcarb: 'คาร์บต่ำ',
+                lowcal: 'คุมแคลแบบชิล ๆ',
+                tasty: 'ขออร่อยไว้ก่อน'
+            };
+            return names[focus] || 'ขออร่อยไว้ก่อน';
+        }
+
+        async function saveMealPlan(meals) {
+            // Mock Supabase save
+            const planData = {
+                line_user_id: appState.lineUserId,
+                food_type: appState.foodType,
+                selected_meals: appState.selectedMeals,
+                focus: appState.focus,
+                meals: meals,
+                created_at: new Date().toISOString()
+            };
+            
+            console.log('Saving meal plan:', planData);
+            // In real implementation, save to Supabase here
+        }
+
+        function resetApp() {
+            // Keep user ID and goal calories, reset only selection data
+            const savedUserId = appState.lineUserId;
+            const savedGoalCalories = appState.goalCalories;
+            
+            appState = { 
+                foodType: '', 
+                selectedMeals: [], 
+                focus: '', 
+                lineUserId: savedUserId,
+                goalCalories: savedGoalCalories
+            };
+            
+            // Reset meal selection buttons
+            ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
+                const btn = document.getElementById(mealType + '-btn');
+                const check = document.getElementById(mealType + '-check');
+                if (btn && check) {
+                    btn.classList.remove('bg-accent', 'text-primary');
+                    btn.classList.add('bg-white/20');
+                    check.classList.add('hidden');
+                }
+            });
+            
+            // Reset continue button
+            const continueBtn = document.getElementById('continue-btn');
+            if (continueBtn) {
+                continueBtn.disabled = true;
+                continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                continueBtn.classList.remove('hover:scale-105');
+            }
+            
+            showStep('step1');
+        }
+
+        function goToHome() {
+            resetApp();
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLIFF();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'970fb3a785667b56',t:'MTc1NTUwMjE4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
