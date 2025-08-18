@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คิดอะไรไม่ออก บอกอีแคล</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Kanit', sans-serif; }
+        .bg-primary { background-color: #cc1e0f; }
+        .border-accent { border-color: #e9e2d0; }
+        .text-accent { color: #e9e2d0; }
+        .hover-accent:hover { background-color: #e9e2d0; color: #cc1e0f; }
+        .slide-in { animation: slideIn 0.5s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(233, 226, 208, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(233, 226, 208, 0.6); }
+        }
+    </style>
+</head>
+<body class="bg-primary min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8 max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8 slide-in">
+            <h1 class="text-3xl font-bold text-accent mb-2">🤔 คิดอะไรไม่ออก</h1>
+            <h2 class="text-2xl font-semibold mb-4">บอกอีแคล ✨</h2>
+            <p class="text-lg opacity-90">วางแผนมื้ออาหารง่าย ๆ ไม่ต้องคิดเอง!</p>
+        </div>
+
+        <!-- Step 1: Food Type Selection -->
+        <div id="step1" class="slide-in">
+            <div class="bg-white rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-xl font-semibold mb-4 text-center text-amber-900">🍽️ อยากกินแนวไหนดี?</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="selectFoodType('thai')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🇹🇭</div>
+                        <div class="font-medium">อาหารไทย</div>
+                    </button>
+                    <button onclick="selectFoodType('western')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🍝</div>
+                        <div class="font-medium">อาหารฝรั่ง</div>
+                    </button>
+                    <button onclick="selectFoodType('noodle')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🍜</div>
+                        <div class="font-medium">เส้น/ก๋วยเตี๋ยว</div>
+                    </button>
+                    <button onclick="selectFoodType('healthy')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🥗</div>
+                        <div class="font-medium">คลีน/สุขภาพ</div>
+                    </button>
+                    <button onclick="selectFoodType('vegan')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🧘</div>
+                        <div class="font-medium">มังสวิรัติ/เจ</div>
+                    </button>
+                    <button onclick="selectFoodType('snack')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🍿</div>
+                        <div class="font-medium">อาหารทานเล่น</div>
+                    </button>
+                    <button onclick="selectFoodType('drinks')" class="food-type-btn text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <div class="text-2xl mb-2">🧋</div>
+                        <div class="font-medium">เครื่องดื่ม</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Meal Selection -->
+        <div id="step2" class="hidden slide-in">
+            <div class="bg-white rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-xl font-semibold mb-2 text-center text-amber-900">🧮 อยากได้เมนูมื้อไหนบ้าง?</h3>
+                <p class="text-center text-sm text-amber-700 mb-4">เลือกได้มากกว่า 1 มื้อนะ</p>
+                <div class="space-y-3">
+                    <button onclick="toggleMeal('breakfast')" id="breakfast-btn" class="meal-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🌅</span>
+                        <span class="font-medium">มื้อเช้า</span>
+                        <span class="ml-auto text-xl hidden" id="breakfast-check">✅</span>
+                    </button>
+                    <button onclick="toggleMeal('lunch')" id="lunch-btn" class="meal-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">☀️</span>
+                        <span class="font-medium">มื้อกลางวัน</span>
+                        <span class="ml-auto text-xl hidden" id="lunch-check">✅</span>
+                    </button>
+                    <button onclick="toggleMeal('dinner')" id="dinner-btn" class="meal-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🌙</span>
+                        <span class="font-medium">มื้อเย็น</span>
+                        <span class="ml-auto text-xl hidden" id="dinner-check">✅</span>
+                    </button>
+                </div>
+                <button onclick="proceedToStep3()" id="continue-btn" class="w-full mt-4 text-white font-semibold rounded-xl p-4 transition-all duration-300 transform hover:scale-105 opacity-50 cursor-not-allowed" style="background-color: #DDB4A5;" disabled>
+                    ต่อไป ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Focus Selection -->
+        <div id="step3" class="hidden slide-in">
+            <div class="bg-white rounded-2xl p-6 border-2 border-accent mb-6">
+                <h3 class="text-xl font-semibold mb-2 text-center text-amber-900">💪 อยากเน้นอะไรไหม</h3>
+                <p class="text-center text-sm text-amber-700 mb-4">จะได้จัดเมนูแบบแม่น ๆ</p>
+                <div class="space-y-3">
+                    <button onclick="selectFocus('protein')" class="focus-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🥩</span>
+                        <span class="font-medium">โปรตีนสูง</span>
+                    </button>
+                    <button onclick="selectFocus('lowcarb')" class="focus-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🧘‍♀️</span>
+                        <span class="font-medium">คาร์บต่ำ</span>
+                    </button>
+                    <button onclick="selectFocus('lowcal')" class="focus-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">💧</span>
+                        <span class="font-medium">คุมแคลแบบชิล ๆ</span>
+                    </button>
+                    <button onclick="selectFocus('tasty')" class="focus-btn w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🧡</span>
+                        <span class="font-medium">ไม่มีอะไร ขออร่อยไว้ก่อน</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-8">
+            <div class="pulse-glow bg-white/20 rounded-2xl p-8 border-2 border-accent">
+                <div class="text-4xl mb-4">🤖</div>
+                <h3 class="text-xl font-semibold mb-2">อีแคลกำลังคิดให้...</h3>
+                <p class="opacity-80">รอแป๊บนึงนะ กำลังจัดเมนูดี ๆ ให้ ✨</p>
+                <div class="mt-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden slide-in">
+            <div class="bg-white rounded-2xl p-6 mb-6">
+                <h3 class="text-2xl font-bold text-center mb-4 text-amber-900">🍱 Meal Plan วันนี้:</h3>
+                <div id="mealPlan" class="space-y-4 mb-6">
+                    <!-- Meals will be populated here -->
+                </div>
+                <div id="summary" class="bg-amber-50 rounded-xl p-4 mb-4">
+                    <!-- Summary will be populated here -->
+                </div>
+                <div id="tip" class="bg-amber-100 rounded-xl p-4 mb-4">
+                    <h4 class="font-semibold mb-2 text-amber-900">💡 ทริป!! จากอีแคล:</h4>
+                    <p id="tipText" class="text-sm text-amber-800"></p>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="changeMenuType()" class="w-full text-white hover:opacity-80 border-2 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🔄</span>
+                        <span class="font-medium">เปลี่ยนแนวเมนูใหม่</span>
+                    </button>
+                    <button onclick="goToHome()" class="w-full text-white font-semibold rounded-xl p-4 transition-all duration-300 transform hover:scale-105 flex items-center justify-center hover:opacity-80 border-2" style="background-color: #DDB4A5; border-color: #DDB4A5;">
+                        <span class="text-2xl mr-3">🏠</span>
+                        <span class="font-medium">กลับไปหน้าแรก</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden form for LINE ID -->
+        <input type="hidden" id="lineId" name="lineId">
+    </div>
+
+    <script>
+        // App state
+        let appState = {
+            foodType: '',
+            selectedMeals: [],
+            focus: '',
+            lineUserId: '',
+            goalCalories: 1300
+        };
+
+        // Initialize Supabase with fallback
+        const supabaseUrl = 'https://lvtdqeerzxpznnayccmb.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2dGRxZWVyenhwem5uYXljY21iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM0MTAxMjksImV4cCI6MjA2ODk4NjEyOX0.Uai-3_YSJpsYmSSTbHtrSNBoCG5f8WxoUcqyvcV3yUM';
+        let supabase = null;
+        
+        // Only initialize if credentials are provided
+        if (supabaseUrl !== 'YOUR_SUPABASE_URL' && supabaseKey !== 'YOUR_SUPABASE_ANON_KEY') {
+            try {
+                console.log('🔄 Initializing Supabase connection...');
+                console.log('URL:', supabaseUrl);
+                console.log('Key length:', supabaseKey.length);
+                
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase client created successfully');
+                
+                // Test connection with more detailed logging
+                console.log('🧪 Testing Supabase connection...');
+                supabase.from('meals_database').select('count', { count: 'exact', head: true })
+                    .then(({ count, error }) => {
+                        if (error) {
+                            console.error('❌ Supabase connection test failed:', error);
+                            console.error('Error details:', error.message);
+                            console.error('Error code:', error.code);
+                        } else {
+                            console.log(`🎉 Supabase connected! Found ${count} meals in database`);
+                            
+                            // Additional test - try to fetch one meal
+                            supabase.from('meals_database').select('*').limit(1)
+                                .then(({ data: testData, error: testError }) => {
+                                    if (testError) {
+                                        console.error('❌ Test query failed:', testError);
+                                    } else {
+                                        console.log('✅ Test query successful:', testData);
+                                    }
+                                });
+                        }
+                    });
+                    
+            } catch (error) {
+                console.error('❌ Supabase initialization failed:', error);
+                supabase = null;
+            }
+        } else {
+            console.log('⚠️ Supabase credentials not provided - using demo mode');
+            console.log('Current URL:', supabaseUrl);
+            console.log('Current Key:', supabaseKey);
+        }
+
+        // Get meals from Supabase with fallback data
+        async function getMealsFromSupabase(foodType, mealTimes, focus) {
+            console.log('🔍 Fetching meals for:', { foodType, mealTimes, focus });
+            
+            // Try Supabase first if connected
+            if (supabase) {
+                try {
+                    console.log('🔄 Attempting to fetch from Supabase...');
+                    
+                    // First, let's see what columns are actually available
+                    console.log('📊 Testing basic query to see available data...');
+                    const testQuery = await supabase
+                        .from('meals_database')
+                        .select('*')
+                        .limit(3);
+                    
+                    if (testQuery.data && testQuery.data.length > 0) {
+                        console.log('✅ Sample data structure:', testQuery.data[0]);
+                        console.log('📋 Available columns:', Object.keys(testQuery.data[0]));
+                        console.log('🔍 All sample data:', testQuery.data);
+                        
+                        // Check what values exist in food_type column
+                        const foodTypes = [...new Set(testQuery.data.map(meal => meal.food_type))];
+                        console.log('🍽️ Available food_type values:', foodTypes);
+                        
+                        // Check what values exist in meal_time column
+                        const mealTimes = [...new Set(testQuery.data.map(meal => meal.meal_time))];
+                        console.log('⏰ Available meal_time values:', mealTimes);
+                    }
+
+                    // Build query - start simple and add filters
+                    let query = supabase
+                        .from('meals_database')
+                        .select('*');
+
+                    // Try to match food_type - be flexible with the matching
+                    if (foodType) {
+                        console.log(`🎯 Filtering by food_type: ${foodType}`);
+                        query = query.eq('food_type', foodType);
+                    }
+
+                    // Execute the query
+                    console.log('🔄 Executing query with filters...');
+                    const { data, error } = await query.limit(20);
+                    
+                    console.log('📊 Query result:', { 
+                        dataLength: data ? data.length : 0, 
+                        error: error ? error.message : 'none',
+                        searchCriteria: { foodType, mealTimes, focus }
+                    });
+
+                    if (error) {
+                        console.error('❌ Supabase query error:', error);
+                        console.error('Error details:', error.message);
+                        console.error('Error code:', error.code);
+                        
+                        // Try a simpler query without filters
+                        console.log('🔄 Trying simpler query without filters...');
+                        const fallbackQuery = await supabase
+                            .from('meals_database')
+                            .select('*')
+                            .limit(10);
+                            
+                        if (fallbackQuery.data && fallbackQuery.data.length > 0) {
+                            console.log(`✅ Fallback query successful! Got ${fallbackQuery.data.length} meals`);
+                            return fallbackQuery.data;
+                        }
+                        
+                    } else if (data && data.length > 0) {
+                        console.log(`🎉 Successfully fetched ${data.length} meals from Supabase`);
+                        console.log('📝 Sample meal data:', data[0]);
+                        
+                        // Apply client-side filtering if needed
+                        let filteredData = [...data];
+                        
+                        // Filter by meal times if specified - using Thai meal time values
+                        if (mealTimes && mealTimes.length > 0) {
+                            console.log(`🕐 Filtering by meal times: ${mealTimes.join(', ')}`);
+                            filteredData = filteredData.filter(meal => 
+                                mealTimes.includes(meal.meal_time)
+                            );
+                            console.log(`📊 After meal time filter: ${filteredData.length} meals`);
+                        }
+                        
+                        // Apply focus filters if specified
+                        if (focus && focus !== 'tasty') {
+                            console.log(`🎯 Applying focus filter: ${focus}`);
+                            switch (focus) {
+                                case 'protein':
+                                    filteredData = filteredData.filter(meal => (meal.protein || 0) >= 20);
+                                    break;
+                                case 'lowcarb':
+                                    filteredData = filteredData.filter(meal => (meal.carbs || 0) <= 30);
+                                    break;
+                                case 'lowcal':
+                                    filteredData = filteredData.filter(meal => (meal.calories || 0) <= 400);
+                                    break;
+                            }
+                            console.log(`📊 After focus filter: ${filteredData.length} meals`);
+                        }
+                        
+                        if (filteredData.length > 0) {
+                            return filteredData;
+                        } else {
+                            console.log('⚠️ No meals match the criteria after filtering, returning all data');
+                            return data;
+                        }
+                        
+                    } else {
+                        console.log('📭 No data found in Supabase for criteria:', { foodType, mealTimes, focus });
+                        
+                        // Try getting any data from the table
+                        console.log('🔄 Trying to get any available data...');
+                        const anyDataQuery = await supabase
+                            .from('meals_database')
+                            .select('*')
+                            .limit(10);
+                            
+                        if (anyDataQuery.data && anyDataQuery.data.length > 0) {
+                            console.log(`✅ Got ${anyDataQuery.data.length} meals from any data query`);
+                            return anyDataQuery.data;
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('💥 Supabase connection error:', error);
+                }
+            } else {
+                console.log('⚠️ Supabase not initialized, using fallback data');
+            }
+            
+            // Fallback data if Supabase fails or returns no data (calculated for 350g portions)
+            console.log('Using fallback meal data (350g portions)');
+            const fallbackMealsData = {
+                thai: [
+                    { food_name: 'ไข่เจียวข้าวสวย', meal_time: 'breakfast', calories: 385, protein: 18, carbs: 52, fat: 10, tip: 'กินไข่เจียวตอนเช้าจะได้พลังงานดี ๆ เริ่มต้นวัน! (350g)' },
+                    { food_name: 'โจ๊กหมู', meal_time: 'breakfast', calories: 315, protein: 14, carbs: 46, fat: 7, tip: 'โจ๊กหมูย่อยง่าย เหมาะกับมื้อเช้า (350g)' },
+                    { food_name: 'ข้าวผัดกะเพรา', meal_time: 'breakfast', calories: 490, protein: 21, carbs: 64, fat: 14, tip: 'กะเพราให้พลังงานเต็ม ๆ เริ่มต้นวันแบบจัดจ้าน! (350g)' },
+                    { food_name: 'ลาบอกไก่', meal_time: 'lunch', calories: 525, protein: 41, carbs: 29, fat: 14, tip: 'ลาบอกไก่มีโปรตีนสูง เหมาะกับคนออกกำลังกาย (350g)' },
+                    { food_name: 'ส้มตำไทย', meal_time: 'lunch', calories: 210, protein: 9, carbs: 29, fat: 6, tip: 'ส้มตำให้วิตามินซี สดชื่นดี (350g)' },
+                    { food_name: 'แกงเขียวหวานไก่', meal_time: 'lunch', calories: 445, protein: 29, carbs: 23, fat: 26, tip: 'แกงเขียวหวานอร่อยแบบไทย ๆ (350g)' },
+                    { food_name: 'แกงจืดเต้าหู้หมูสับ', meal_time: 'dinner', calories: 445, protein: 33, carbs: 18, fat: 21, tip: 'แกงจืดย่อยง่าย เหมาะกับมื้อเย็น (350g)' },
+                    { food_name: 'ปลาทับทิมนึ่งมะนาว', meal_time: 'dinner', calories: 295, protein: 35, carbs: 9, fat: 12, tip: 'ปลานึ่งมะนาวเบา ๆ ดีต่อสุขภาพ (350g)' },
+                    { food_name: 'ไก่ย่างเกลือ', meal_time: 'dinner', calories: 375, protein: 41, carbs: 6, fat: 18, tip: 'ไก่ย่างเกลือโปรตีนสูง คาร์บต่ำ (350g)' }
+                ],
+                western: [
+                    { food_name: 'Scrambled Eggs Toast', meal_time: 'breakfast', calories: 410, protein: 21, carbs: 35, fat: 18, tip: 'ไข่กวนกับขนมปังโฮลวีทให้พลังงานยาวนาน (350g)' },
+                    { food_name: 'Pancakes with Berries', meal_time: 'breakfast', calories: 445, protein: 14, carbs: 64, fat: 14, tip: 'แพนเค้กเบอร์รี่หวานอร่อย เริ่มต้นวันแบบมีความสุข (350g)' },
+                    { food_name: 'Avocado Toast', meal_time: 'breakfast', calories: 375, protein: 9, carbs: 41, fat: 21, tip: 'อะโวคาโดโทสต์ให้ไขมันดี เทรนด์สุขภาพ (350g)' },
+                    { food_name: 'Grilled Chicken Salad', meal_time: 'lunch', calories: 490, protein: 47, carbs: 23, fat: 12, tip: 'สลัดไก่ย่างคือเมนูคลีนที่อร่อยและได้โปรตีน (350g)' },
+                    { food_name: 'Caesar Salad', meal_time: 'lunch', calories: 445, protein: 18, carbs: 29, fat: 29, tip: 'ซีซาร์สลัดคลาสสิก อร่อยแบบเวสเทิร์น (350g)' },
+                    { food_name: 'Chicken Wrap', meal_time: 'lunch', calories: 525, protein: 35, carbs: 47, fat: 21, tip: 'ไก่แร็ปพกพาสะดวก อิ่มท้องดี (350g)' },
+                    { food_name: 'Salmon Steak', meal_time: 'dinner', calories: 560, protein: 41, carbs: 12, fat: 29, tip: 'ปลาแซลมอนมีโอเมก้า 3 ดีต่อสมองและหัวใจ (350g)' },
+                    { food_name: 'Grilled Beef Steak', meal_time: 'dinner', calories: 610, protein: 53, carbs: 9, fat: 35, tip: 'สเต็กเนื้อย่างโปรตีนสูง เหมาะคนออกกำลังกาย (350g)' },
+                    { food_name: 'Baked Chicken Breast', meal_time: 'dinner', calories: 330, protein: 41, carbs: 6, fat: 14, tip: 'อกไก่อบเบา ๆ โปรตีนสูง คาร์บต่ำ (350g)' }
+                ],
+                healthy: [
+                    { food_name: 'Quinoa Bowl', meal_time: 'breakfast', calories: 350, protein: 14, carbs: 47, fat: 9, tip: 'ควินัวเป็นซูเปอร์ฟู้ด มีโปรตีนครบถ้วน (350g)' },
+                    { food_name: 'Buddha Bowl', meal_time: 'lunch', calories: 445, protein: 18, carbs: 53, fat: 14, tip: 'Buddha Bowl ให้สารอาหารครบ 5 หมู่ (350g)' },
+                    { food_name: 'Steamed Fish', meal_time: 'dinner', calories: 375, protein: 35, carbs: 6, fat: 18, tip: 'ปลานึ่งย่อยง่าย เหมาะกับมื้อเย็น (350g)' }
+                ],
+                noodle: [
+                    { food_name: 'ก๋วยเตี๋ยวต้มยำ', meal_time: 'breakfast', calories: 445, protein: 23, carbs: 58, fat: 12, tip: 'ก๋วยเตี๋ยวต้มยำให้พลังงานดี เริ่มต้นวันแบบจัดจ้าน! (350g)' },
+                    { food_name: 'ผัดไทยกุ้งสด', meal_time: 'lunch', calories: 525, protein: 29, carbs: 64, fat: 18, tip: 'ผัดไทยเป็นเมนูคลาสสิกที่ให้พลังงานครบถ้วน (350g)' },
+                    { food_name: 'ก๋วยเตี๋ยวเรือ', meal_time: 'dinner', calories: 490, protein: 35, carbs: 53, fat: 14, tip: 'ก๋วยเตี๋ยวเรือมีเนื้อหลากหลาย อิ่มท้องดี (350g)' }
+                ],
+                vegan: [
+                    { food_name: 'โจ๊กถั่วเขียว', meal_time: 'breakfast', calories: 295, protein: 9, carbs: 53, fat: 4, tip: 'โจ๊กถั่วเขียวย่อยง่าย เหมาะกับมื้อเช้า (350g)' },
+                    { food_name: 'ผัดผักรวมเต้าหู้', meal_time: 'lunch', calories: 375, protein: 18, carbs: 29, fat: 21, tip: 'ผักรวมให้วิตามินครบ เต้าหู้ให้โปรตีน (350g)' },
+                    { food_name: 'แกงเขียวหวานเจ', meal_time: 'dinner', calories: 330, protein: 14, carbs: 23, fat: 18, tip: 'แกงเขียวหวานเจอร่อยไม่แพ้แบบมีเนื้อ (350g)' }
+                ],
+                snack: [
+                    { food_name: 'ข้าวเกรียบปลา', meal_time: 'breakfast', calories: 175, protein: 6, carbs: 29, fat: 5, tip: 'ข้าวเกรียบปลาเป็นขนมไทยที่ให้พลังงานดี (350g)' },
+                    { food_name: 'ถั่วลิสงคั่ว', meal_time: 'lunch', calories: 210, protein: 9, carbs: 14, fat: 14, tip: 'ถั่วลิสงมีโปรตีนสูง เหมาะเป็นขนมทานเล่น (350g)' },
+                    { food_name: 'กล้วยอบ', meal_time: 'dinner', calories: 140, protein: 2, carbs: 33, fat: 1, tip: 'กล้วยอบให้พลังงานธรรมชาติ หวานน้อย (350g)' }
+                ],
+                drinks: [
+                    { food_name: 'น้ำผลไม้สดปั่น', meal_time: 'breakfast', calories: 140, protein: 2, carbs: 35, fat: 0, tip: 'น้ำผลไม้สดให้วิตามินซี เริ่มต้นวันแบบสดชื่น! (350g)' },
+                    { food_name: 'ชาเขียวน้ำผึ้ง', meal_time: 'lunch', calories: 95, protein: 0, carbs: 23, fat: 0, tip: 'ชาเขียวมีสารต้านอนุมูลอิสระ ดีต่อสุขภาพ (350g)' },
+                    { food_name: 'นมอัลมอนด์', meal_time: 'dinner', calories: 70, protein: 4, carbs: 9, fat: 4, tip: 'นมอัลมอนด์ไม่มีแลคโตส ย่อยง่าย เหมาะก่อนนอน (350g)' }
+                ]
+            };
+
+            // If Supabase is not connected, use fallback data
+            if (!supabase) {
+                console.log('Using fallback meal data');
+                return fallbackMealsData[foodType] || fallbackMealsData.thai;
+            }
+
+            try {
+                // Build query based on parameters
+                let query = supabase
+                    .from('meals_database')
+                    .select('*')
+                    .eq('food_type', foodType);
+
+                // Add meal time filter if specified
+                if (mealTimes && mealTimes.length > 0) {
+                    query = query.in('meal_time', mealTimes);
+                }
+
+                // Add focus filter if specified
+                if (focus && focus !== 'tasty') {
+                    switch (focus) {
+                        case 'protein':
+                            query = query.gte('protein', 20);
+                            break;
+                        case 'lowcarb':
+                            query = query.lte('carbs', 30);
+                            break;
+                        case 'lowcal':
+                            query = query.lte('calories', 400);
+                            break;
+                    }
+                }
+
+                const { data, error } = await query.limit(10);
+
+                if (error) {
+                    console.error('Error fetching meals:', error);
+                    return fallbackMealsData[foodType] || fallbackMealsData.thai;
+                }
+
+                if (data && data.length > 0) {
+                    return data;
+                }
+
+                // If no data found, return fallback
+                return fallbackMealsData[foodType] || fallbackMealsData.thai;
+
+            } catch (error) {
+                console.error('Supabase query error:', error);
+                return fallbackMealsData[foodType] || fallbackMealsData.thai;
+            }
+        }
+
+        // Get goal calories from Supabase with timeout
+        async function getGoalCalories(userId) {
+            console.log('Fetching goal calories for user:', userId);
+            
+            // If Supabase is not connected, return default immediately
+            if (!supabase) {
+                console.log('Supabase not connected, using default goal calories');
+                return 1300;
+            }
+
+            try {
+                console.log('Attempting to fetch goal calories from Supabase...');
+                
+                // Add timeout to prevent long loading
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 5000)
+                );
+
+                const supabasePromise = supabase
+                    .from('tdee_form')
+                    .select('goal_calories')
+                    .eq('line_user_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                const { data, error } = await Promise.race([supabasePromise, timeoutPromise]);
+
+                if (error) {
+                    console.error('Error fetching goal calories:', error);
+                    return 1300; // Default value
+                }
+
+                if (data && data.length > 0) {
+                    console.log('Successfully fetched goal calories:', data[0].goal_calories);
+                    return data[0].goal_calories || 1300;
+                } else {
+                    console.log('No goal calories data found for user, using default');
+                }
+                
+                return 1300; // Default if no data found
+            } catch (error) {
+                console.error('Supabase connection error or timeout:', error);
+                return 1300; // Return default immediately on error
+            }
+        }
+
+        // Initialize LIFF
+        async function initializeLIFF() {
+            try {
+                // Replace with your actual LIFF ID
+                await liff.init({ liffId: "2007859046-yEGnq0GX" });
+                
+                if (!liff.isLoggedIn()) {
+                    liff.login();
+                    return;
+                }
+
+                const profile = await liff.getProfile();
+                appState.lineUserId = profile.userId;
+                document.getElementById("lineId").value = profile.userId;
+                
+                // Get goal calories from database
+                appState.goalCalories = await getGoalCalories(profile.userId);
+            } catch (error) {
+                console.log("LIFF initialization failed:", error);
+                // For demo purposes, use a mock user ID
+                appState.lineUserId = "demo_user_" + Date.now();
+                appState.goalCalories = 1300; // Default for demo
+            }
+        }
+
+        // Step functions
+        function selectFoodType(type) {
+            appState.foodType = type;
+            showStep('step2');
+        }
+
+        function toggleMeal(mealType) {
+            // Map English meal types to Thai for database queries
+            const mealTimeMapping = {
+                'breakfast': 'เช้า',
+                'lunch': 'กลางวัน', 
+                'dinner': 'เย็น'
+            };
+            
+            const thaiMealType = mealTimeMapping[mealType] || mealType;
+            const index = appState.selectedMeals.indexOf(thaiMealType);
+            const btn = document.getElementById(mealType + '-btn');
+            const check = document.getElementById(mealType + '-check');
+            
+            if (index > -1) {
+                // Remove meal
+                appState.selectedMeals.splice(index, 1);
+                btn.style.backgroundColor = '#DDB4A5';
+                btn.style.borderColor = '#DDB4A5';
+                btn.style.opacity = '1';
+                check.classList.add('hidden');
+            } else {
+                // Add meal (store Thai version)
+                appState.selectedMeals.push(thaiMealType);
+                btn.style.backgroundColor = '#B8967D';
+                btn.style.borderColor = '#B8967D';
+                btn.style.opacity = '1';
+                check.classList.remove('hidden');
+            }
+            
+            // Update continue button
+            const continueBtn = document.getElementById('continue-btn');
+            if (appState.selectedMeals.length > 0) {
+                continueBtn.disabled = false;
+                continueBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                continueBtn.classList.add('hover:scale-105');
+            } else {
+                continueBtn.disabled = true;
+                continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                continueBtn.classList.remove('hover:scale-105');
+            }
+        }
+
+        function proceedToStep3() {
+            if (appState.selectedMeals.length > 0) {
+                showStep('step3');
+            }
+        }
+
+        function selectFocus(focus) {
+            appState.focus = focus;
+            generateMealPlan();
+        }
+
+        function showStep(stepId) {
+            // Hide all steps
+            ['step1', 'step2', 'step3', 'loading', 'results'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Show target step
+            document.getElementById(stepId).classList.remove('hidden');
+        }
+
+        // Store previously selected meals to avoid duplicates
+        let previouslySelectedMeals = [];
+
+        async function generateMealPlan() {
+            showStep('loading');
+            
+            try {
+                // Get meals from Supabase or fallback data
+                const allMeals = await getMealsFromSupabase(appState.foodType, appState.selectedMeals, appState.focus);
+                const selectedMeals = [];
+                
+                // Get meals for selected meal times - always randomize selection
+                appState.selectedMeals.forEach(mealTime => {
+                    console.log(`🔍 Looking for meals for time: "${mealTime}"`);
+                    
+                    // Filter meals for this specific meal time
+                    let mealsForTime = allMeals.filter(meal => {
+                        console.log(`Comparing meal.meal_time "${meal.meal_time}" with "${mealTime}"`);
+                        return meal.meal_time === mealTime;
+                    });
+                    
+                    console.log(`📊 Found ${mealsForTime.length} meals for time "${mealTime}"`);
+                    
+                    // If we have previously selected meals, try to avoid them
+                    if (previouslySelectedMeals.length > 0) {
+                        const availableMeals = mealsForTime.filter(meal => 
+                            !previouslySelectedMeals.some(prevMeal => 
+                                prevMeal.food_name === meal.food_name && prevMeal.meal_time === meal.meal_time
+                            )
+                        );
+                        
+                        // Use available meals if we have them, otherwise use all meals
+                        if (availableMeals.length > 0) {
+                            mealsForTime = availableMeals;
+                            console.log(`✅ After filtering previous meals: ${mealsForTime.length} meals available`);
+                        }
+                    }
+                    
+                    if (mealsForTime.length > 0) {
+                        // Randomly select from meals for this time
+                        const randomIndex = Math.floor(Math.random() * mealsForTime.length);
+                        const selectedMeal = mealsForTime[randomIndex];
+                        console.log(`🎯 Selected meal: ${selectedMeal.food_name} for ${mealTime}`);
+                        selectedMeals.push(selectedMeal);
+                    } else {
+                        console.log(`⚠️ No specific meals found for "${mealTime}", using fallback`);
+                        // If no specific meal found for this time, get a random one from all meals and adjust meal_time
+                        let availableAllMeals = [...allMeals];
+                        
+                        // Try to avoid previously selected meals
+                        if (previouslySelectedMeals.length > 0) {
+                            const filteredMeals = allMeals.filter(meal => 
+                                !previouslySelectedMeals.some(prevMeal => prevMeal.food_name === meal.food_name)
+                            );
+                            if (filteredMeals.length > 0) {
+                                availableAllMeals = filteredMeals;
+                            }
+                        }
+                        
+                        const randomMeal = availableAllMeals[Math.floor(Math.random() * availableAllMeals.length)];
+                        if (randomMeal) {
+                            console.log(`🔄 Using fallback meal: ${randomMeal.food_name} (adjusted to ${mealTime})`);
+                            selectedMeals.push({
+                                ...randomMeal,
+                                meal_time: mealTime
+                            });
+                        }
+                    }
+                });
+                
+                // Store current selection for next time
+                previouslySelectedMeals = [...selectedMeals];
+                currentMealPlan = [...selectedMeals];
+                
+                // Add delay for better UX
+                setTimeout(() => {
+                    displayMealPlan(selectedMeals);
+                    showStep('results');
+                    
+                    // Save to Supabase
+                    saveMealPlan(selectedMeals);
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error generating meal plan:', error);
+                // Fallback to basic meal plan
+                setTimeout(() => {
+                    const basicMeals = [
+                        { food_name: 'เมนูแนะนำ', meal_time: 'lunch', calories: 400, protein: 20, carbs: 40, fat: 15, tip: 'เมนูสำรองเมื่อไม่สามารถเชื่อมต่อฐานข้อมูลได้' }
+                    ];
+                    displayMealPlan(basicMeals);
+                    showStep('results');
+                }, 1500);
+            }
+        }
+
+        function displayMealPlan(meals) {
+            const mealPlanDiv = document.getElementById('mealPlan');
+            const summaryDiv = document.getElementById('summary');
+            const tipDiv = document.getElementById('tipText');
+            
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalCarbs = 0;
+            let totalFat = 0;
+            
+            const mealEmojis = {
+                'เช้า': '🥣',
+                'กลางวัน': '🍲',
+                'เย็น': '🥗',
+                'ดื่ม': '🧋',
+                'ของว่าง': '🍿',
+                // Fallback for English values
+                breakfast: '🥣',
+                lunch: '🍲',
+                dinner: '🥗'
+            };
+            
+            const mealNames = {
+                'เช้า': 'เช้า',
+                'กลางวัน': 'กลางวัน',
+                'เย็น': 'เย็น',
+                'ดื่ม': 'ดื่ม',
+                'ของว่าง': 'ของว่าง',
+                // Fallback for English values
+                breakfast: 'เช้า',
+                lunch: 'กลางวัน',
+                dinner: 'เย็น'
+            };
+            
+            mealPlanDiv.innerHTML = meals.map((meal) => {
+                totalCalories += meal.calories || 0;
+                totalProtein += meal.protein || 0;
+                totalCarbs += meal.carbs || 0;
+                totalFat += meal.fat || 0;
+                
+                // Build additional info string
+                let additionalInfo = [];
+                if (meal.price_range) additionalInfo.push(`💰 ${meal.price_range}`);
+                if (meal.is_vegetarian) additionalInfo.push('🌱 เจ');
+                if (meal.is_healthy) additionalInfo.push('💚 สุขภาพ');
+                
+                return `
+                    <div class="bg-amber-50 rounded-xl p-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-2xl mr-3">${mealEmojis[meal.meal_time]}</span>
+                            <span class="font-semibold text-amber-900">${mealNames[meal.meal_time]}:</span>
+                        </div>
+                        <div class="ml-8">
+                            <div class="font-medium text-amber-900">${meal.food_name}</div>
+                            <div class="text-sm text-amber-700 mb-1">
+                                ${meal.calories || 0} kcal | P: ${meal.protein || 0}g | C: ${meal.carbs || 0}g | F: ${meal.fat || 0}g
+                            </div>
+                            ${additionalInfo.length > 0 ? `<div class="text-xs text-amber-600">${additionalInfo.join(' • ')}</div>` : ''}
+                            ${meal.ingredients ? `<div class="text-xs text-amber-600 mt-1">🥘 ${meal.ingredients}</div>` : ''}
+                            ${meal.allergens ? `<div class="text-xs text-red-600 mt-1">⚠️ แพ้: ${meal.allergens}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            summaryDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="text-lg font-semibold mb-2 text-amber-900">✅ รวม ${totalCalories} kcal / เป้า ${appState.goalCalories.toLocaleString()} kcal</div>
+                    <div class="text-sm text-amber-700 mb-2">
+                        🍗 โปรตีน: ${totalProtein}g | 🍞 คาร์บ: ${totalCarbs}g | 🥑 ไขมัน: ${totalFat}g
+                    </div>
+                    <div class="text-sm text-amber-700">💬 แนว: ${getFoodTypeName(appState.foodType)} / ${getFocusName(appState.focus)}</div>
+                </div>
+            `;
+            
+            // Random tip
+            const randomTip = meals[Math.floor(Math.random() * meals.length)].tip;
+            tipDiv.textContent = randomTip;
+        }
+
+        function getFoodTypeName(type) {
+            const names = {
+                thai: 'อาหารไทย',
+                western: 'อาหารฝรั่ง',
+                noodle: 'เส้น/ก๋วยเตี๋ยว',
+                healthy: 'คลีน/สุขภาพ',
+                vegan: 'มังสวิรัติ/เจ',
+                snack: 'อาหารทานเล่น',
+                drinks: 'เครื่องดื่ม'
+            };
+            return names[type] || 'อาหารไทย';
+        }
+
+        function getFocusName(focus) {
+            const names = {
+                protein: 'โปรตีนสูง',
+                lowcarb: 'คาร์บต่ำ',
+                lowcal: 'คุมแคลแบบชิล ๆ',
+                tasty: 'ขออร่อยไว้ก่อน'
+            };
+            return names[focus] || 'ขออร่อยไว้ก่อน';
+        }
+
+        async function saveMealPlan(meals) {
+            // Mock Supabase save
+            const planData = {
+                line_user_id: appState.lineUserId,
+                food_type: appState.foodType,
+                selected_meals: appState.selectedMeals,
+                focus: appState.focus,
+                meals: meals,
+                created_at: new Date().toISOString()
+            };
+            
+            console.log('Saving meal plan:', planData);
+            // In real implementation, save to Supabase here
+        }
+
+        // Global variable to track current meal plan
+        let currentMealPlan = [];
+
+        function changeMenuType() {
+            // Force completely new meal plan generation
+            showStep('loading');
+            
+            // Add a small delay to show loading animation
+            setTimeout(async () => {
+                try {
+                    // Get fresh meals from database/fallback
+                    const allMeals = await getMealsFromSupabase(appState.foodType, appState.selectedMeals, appState.focus);
+                    const selectedMeals = [];
+                    
+                    // Track used meal names to ensure no duplicates
+                    const usedMealNames = currentMealPlan.map(meal => meal.food_name);
+                    
+                    appState.selectedMeals.forEach((mealTime, index) => {
+                        // Filter meals for this specific meal time
+                        let mealsForTime = allMeals.filter(meal => meal.meal_time === mealTime);
+                        
+                        // Remove already used meals
+                        mealsForTime = mealsForTime.filter(meal => !usedMealNames.includes(meal.food_name));
+                        
+                        // If no meals left after filtering, use all meals for this time (but still avoid current ones if possible)
+                        if (mealsForTime.length === 0) {
+                            mealsForTime = allMeals.filter(meal => meal.meal_time === mealTime);
+                            // Try to avoid current meals even in this case
+                            const nonCurrentMeals = mealsForTime.filter(meal => !usedMealNames.includes(meal.food_name));
+                            if (nonCurrentMeals.length > 0) {
+                                mealsForTime = nonCurrentMeals;
+                            }
+                        }
+                        
+                        // If still no meals, use any meal and adjust meal_time
+                        if (mealsForTime.length === 0) {
+                            mealsForTime = allMeals.filter(meal => !usedMealNames.includes(meal.food_name));
+                            if (mealsForTime.length === 0) {
+                                mealsForTime = [...allMeals]; // Last resort
+                            }
+                        }
+                        
+                        if (mealsForTime.length > 0) {
+                            // Randomly select from available meals
+                            const randomIndex = Math.floor(Math.random() * mealsForTime.length);
+                            const selectedMeal = mealsForTime[randomIndex];
+                            
+                            selectedMeals.push({
+                                ...selectedMeal,
+                                meal_time: mealTime // Ensure correct meal time
+                            });
+                            
+                            // Add to used names to avoid duplicates within this generation
+                            usedMealNames.push(selectedMeal.food_name);
+                        }
+                    });
+                    
+                    // Update current meal plan for next comparison
+                    currentMealPlan = [...selectedMeals];
+                    
+                    displayMealPlan(selectedMeals);
+                    showStep('results');
+                    
+                    // Save to Supabase
+                    saveMealPlan(selectedMeals);
+                } catch (error) {
+                    console.error('Error changing menu:', error);
+                    // Enhanced fallback with guaranteed different meals
+                    const fallbackMeals = [];
+                    const basicMealData = {
+                        thai: [
+                            'ข้าวผัดกะเพรา', 'ส้มตำไทย', 'แกงเขียวหวาน', 'ลาบหมู', 'ไก่ย่าง',
+                            'ต้มยำกุ้ง', 'ผัดไทย', 'มาม่าต้มยำ', 'ข้าวมันไก่', 'แกงส้ม',
+                            'ปลาทอด', 'หมูปิ้ง', 'ไข่เจียว', 'แกงจืด', 'ยำวุ้นเส้น',
+                            'ข้าวซอยไก่', 'หอยทอด', 'ผัดกะหล่ำปลี', 'แกงมัสมั่น', 'ยำมะม่วง'
+                        ],
+                        western: [
+                            'Chicken Salad', 'Pasta Carbonara', 'Beef Steak', 'Club Sandwich', 'Margherita Pizza',
+                            'Fish & Chips', 'Burger', 'Caesar Salad', 'Grilled Salmon', 'Chicken Wrap',
+                            'Mushroom Risotto', 'BBQ Ribs', 'Chicken Wings', 'Tuna Sandwich', 'Beef Tacos',
+                            'Chicken Quesadilla', 'Pork Chops', 'Seafood Pasta', 'Chicken Parmesan', 'Beef Burrito'
+                        ],
+                        noodle: [
+                            'ก๋วยเตี๋ยวต้มยำ', 'ผัดไทยกุ้งสด', 'บะหมี่หมูแดง', 'ก๋วยเตี๋ยวเรือ', 'ผัดซีอิ๊วหมู',
+                            'ราดหน้าหมู', 'ก๋วยเตี๋ยวน้ำใส', 'บะหมี่น้ำ', 'ผัดขี้เมา', 'เส้นใหญ่ผัดซีอิ๊ว',
+                            'ก๋วยเตี๋ยวลูกชิ้น', 'บะหมี่แห้ง', 'ผัดวุ้นเส้น', 'ก๋วยเตี๋ยวหมูตุ๋น', 'เส้นหมี่ผัด',
+                            'ก๋วยเตี๋ยวเป็ด', 'บะหมี่กิ๊ว', 'ผัดมาม่า', 'ก๋วยเตี๋ยวไก่ตุ๋น', 'เส้นใหญ่ราดหน้า'
+                        ],
+                        healthy: [
+                            'Quinoa Bowl', 'Green Salad', 'Steamed Fish', 'Grilled Chicken Breast', 'Vegetable Soup',
+                            'Brown Rice Bowl', 'Tofu Salad', 'Steamed Vegetables', 'Baked Sweet Potato', 'Fruit Salad',
+                            'Smoothie Bowl', 'Grilled Vegetables', 'Chicken Soup', 'Avocado Toast', 'Protein Bowl',
+                            'Kale Salad', 'Baked Cod', 'Veggie Wrap', 'Chia Pudding', 'Turkey Breast'
+                        ],
+                        vegan: [
+                            'ผัดผักรวมเต้าหู้', 'โจ๊กถั่วเขียว', 'แกงเจ', 'สลัดผักสด', 'ข้าวกล้องผัดผัก',
+                            'ต้มจืดเต้าหู้', 'ผัดบุ้งไฟแดง', 'แกงส้มผัก', 'ยำถั่วพลู', 'ข้าวผัดผัก',
+                            'น้ำพริกผัก', 'แกงเลียงผัก', 'ผัดผักบุ้ง', 'ต้มข่าเห็ด', 'ยำผักสด',
+                            'แกงกะทิเห็ด', 'ผัดเห็ดรวม', 'ต้มแซ่บเห็ด', 'ยำเห็ดหูหนู', 'ข้าวผัดเห็ด'
+                        ],
+                        snack: [
+                            'ขนมปังปิ้ง', 'ผลไม้รวม', 'ถั่วคั่ว', 'ข้าวเกรียบ', 'ไอศกรีม',
+                            'ขนมครก', 'ทองหยิบ', 'กล้วยทอด', 'ข้าวโพดต้ม', 'มันเทศอบ',
+                            'ขนมเบื้อง', 'ลูกชิ้นทอด', 'หมูปิ้ง', 'ไส้กรอกอีสาน', 'ขนมจีบ',
+                            'ข้าวโพดคั่ว', 'มันทอด', 'ขนมปังสังขยา', 'ทองม้วน', 'ขนมตาล'
+                        ],
+                        drinks: [
+                            'น้ำผลไม้สด', 'ชาเขียวน้ำผึ้ง', 'กาแฟดำ', 'น้ำเปล่า', 'นมสดจืด',
+                            'น้ำมะนาว', 'ชาไทย', 'น้ำส้ม', 'สมูทตี้', 'น้ำกะทิ',
+                            'น้ำอัญชัน', 'ชาอู่หลง', 'น้ำแตงโม', 'นมอัลมอนด์', 'น้ำมะพร้าว',
+                            'น้ำขิง', 'ชาดำ', 'น้ำฟักทอง', 'นมถั่วเหลือง', 'น้ำใบบัวบก'
+                        ]
+                    };
+                    
+                    const foodOptions = basicMealData[appState.foodType] || basicMealData.thai;
+                    const usedNames = currentMealPlan.map(meal => meal.food_name);
+                    
+                    // Filter out currently used meals
+                    let availableOptions = foodOptions.filter(food => !usedNames.includes(food));
+                    
+                    // If no options left, use all options
+                    if (availableOptions.length < appState.selectedMeals.length) {
+                        availableOptions = [...foodOptions];
+                    }
+                    
+                    // Shuffle available options
+                    const shuffledOptions = [...availableOptions].sort(() => Math.random() - 0.5);
+                    
+                    appState.selectedMeals.forEach((mealTime, index) => {
+                        // Use different meals from the shuffled array
+                        const selectedFood = shuffledOptions[index % shuffledOptions.length];
+                        
+                        fallbackMeals.push({
+                            food_name: selectedFood,
+                            meal_time: mealTime,
+                            calories: 300 + Math.floor(Math.random() * 350), // Adjusted for 350g portions
+                            protein: 12 + Math.floor(Math.random() * 30), // Adjusted for 350g portions
+                            carbs: 25 + Math.floor(Math.random() * 45), // Adjusted for 350g portions
+                            fat: 6 + Math.floor(Math.random() * 25), // Adjusted for 350g portions
+                            tip: `${selectedFood} เป็นเมนูที่ดีสำหรับ${mealTime === 'breakfast' ? 'มื้อเช้า' : mealTime === 'lunch' ? 'มื้อกลางวัน' : 'มื้อเย็น'} (350g)`
+                        });
+                    });
+                    
+                    // Update current meal plan
+                    currentMealPlan = [...fallbackMeals];
+                    
+                    displayMealPlan(fallbackMeals);
+                    showStep('results');
+                }
+            }, 500);
+        }
+
+        function resetApp() {
+            // Keep user ID and goal calories, reset only selection data
+            const savedUserId = appState.lineUserId;
+            const savedGoalCalories = appState.goalCalories;
+            
+            appState = { 
+                foodType: '', 
+                selectedMeals: [], 
+                focus: '', 
+                lineUserId: savedUserId,
+                goalCalories: savedGoalCalories
+            };
+            
+            // Reset previously selected meals history
+            previouslySelectedMeals = [];
+            
+            // Reset meal selection buttons
+            ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
+                const btn = document.getElementById(mealType + '-btn');
+                const check = document.getElementById(mealType + '-check');
+                if (btn && check) {
+                    btn.style.backgroundColor = '#DDB4A5';
+                    btn.style.borderColor = '#DDB4A5';
+                    btn.style.opacity = '1';
+                    check.classList.add('hidden');
+                }
+            });
+            
+            // Reset continue button
+            const continueBtn = document.getElementById('continue-btn');
+            if (continueBtn) {
+                continueBtn.disabled = true;
+                continueBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                continueBtn.classList.remove('hover:scale-105');
+            }
+            
+            showStep('step1');
+        }
+
+        function goToHome() {
+            resetApp();
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLIFF();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97108409636dee4a',t:'MTc1NTUxMDcxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
